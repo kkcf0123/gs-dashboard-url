@@ -46,6 +46,8 @@ python3 scripts/update_dashboard_url.py https://example.trycloudflare.com
 
 `scripts/update_dashboard_url.py`는 표준 라이브러리만 사용하며 URL 형식을 검증한 뒤 GitHub Contents API로 `dashboard.json`을 갱신합니다. 이미 같은 주소가 게시되어 있으면 불필요한 커밋을 만들지 않습니다. GS Ops 봇은 Quick Tunnel 변경을 감지한 직후 같은 방식으로 이 파일을 자동 갱신합니다.
 
+실제 Raspberry Pi 운영 환경은 개인 계정 토큰 대신 이 저장소 하나에만 쓰기 가능한 SSH Deploy Key를 사용합니다. 개인키는 Pi의 `~/.ssh`에만 보관하고, 봇은 전용 checkout의 `dashboard.json`만 커밋·푸시합니다. 이 방식은 GitHub 계정의 다른 저장소에 대한 권한을 부여하지 않습니다.
+
 ## 테스트
 
 ```bash
