@@ -44,7 +44,7 @@ GITHUB_CONFIG_BRANCH=main
 python3 scripts/update_dashboard_url.py https://example.trycloudflare.com
 ```
 
-`scripts/update_dashboard_url.py`는 표준 라이브러리만 사용하며 URL 형식을 검증한 뒤 GitHub Contents API로 `dashboard.json`을 갱신합니다. GS Ops 봇에서는 Quick Tunnel 변경을 감지한 직후 이 함수를 호출하도록 연결할 수 있습니다.
+`scripts/update_dashboard_url.py`는 표준 라이브러리만 사용하며 URL 형식을 검증한 뒤 GitHub Contents API로 `dashboard.json`을 갱신합니다. 이미 같은 주소가 게시되어 있으면 불필요한 커밋을 만들지 않습니다. GS Ops 봇은 Quick Tunnel 변경을 감지한 직후 같은 방식으로 이 파일을 자동 갱신합니다.
 
 ## 테스트
 

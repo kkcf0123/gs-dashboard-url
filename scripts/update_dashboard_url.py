@@ -57,10 +57,25 @@ def github_request(url, token, method="GET", payload=None):
         return json.loads(response.read().decode("utf-8"))
 
 
+def decoded_dashboard_payload(file_info):
+    encoded = str(file_info.get("content") or "").replace("\n", "")
+    if not encoded:
+        return {}
+    try:
+        return json.loads(base64.b64decode(encoded).decode("utf-8"))
+    except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+        return {}
+
+
 def update_dashboard_file(repository, branch, token, url):
     quoted_branch = urllib.parse.quote(branch, safe="")
     api_url = f"https://api.github.com/repos/{repository}/contents/dashboard.json"
     current = github_request(f"{api_url}?ref={quoted_branch}", token)
+    normalized = normalize_dashboard_url(url)
+    existing = decoded_dashboard_payload(current)
+    if existing.get("schema_version") == 1 and existing.get("url") == normalized:
+        return {"changed": False, "url": normalized}
+
     content = json.dumps(dashboard_payload(url), ensure_ascii=False, indent=2) + "\n"
     payload = {
         "message": "Update GS Dashboard Quick Tunnel URL",
@@ -68,7 +83,8 @@ def update_dashboard_file(repository, branch, token, url):
         "sha": current["sha"],
         "branch": branch,
     }
-    return github_request(api_url, token, method="PUT", payload=payload)
+    github_request(api_url, token, method="PUT", payload=payload)
+    return {"changed": True, "url": normalized}
 
 
 def parse_args(argv=None):
@@ -96,13 +112,14 @@ def main(argv=None):
         raise RuntimeError("GITHUB_REPOSITORY must use owner/repository format.")
 
     try:
-        update_dashboard_file(args.repository, args.branch, token, args.url)
+        result = update_dashboard_file(args.repository, args.branch, token, args.url)
     except urllib.error.HTTPError as error:
         detail = error.read().decode("utf-8", errors="replace")
         raise RuntimeError(f"GitHub API update failed: HTTP {error.code}: {detail}") from error
 
     normalized = normalize_dashboard_url(args.url)
-    print(f"Updated {args.repository}/dashboard.json to {normalized}")
+    action = "Updated" if result["changed"] else "Already current"
+    print(f"{action}: {args.repository}/dashboard.json -> {normalized}")
 
 
 if __name__ == "__main__":
