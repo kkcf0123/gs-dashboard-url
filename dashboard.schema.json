@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kkcf0123/gs-dashboard-url/blob/main/dashboard.schema.json",
+  "title": "GS Dashboard endpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "url", "updated_at", "source"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "url": {
+      "type": "string",
+      "pattern": "^$|^https://[a-z0-9-]+\\.trycloudflare\\.com/?$"
+    },
+    "updated_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "source": { "const": "gs-ops-bot" }
+  }
+}
